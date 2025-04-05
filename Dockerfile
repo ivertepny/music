@@ -1,13 +1,31 @@
-FROM python:3.13
+FROM python:3.12
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Environment variables for Python optimization
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-WORKDIR /app
+# Set working directory
+WORKDIR /usr/src
 
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install system dependencies
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY ./backend /app
+# Upgrade pip
+RUN pip install --upgrade pip
 
-CMD ["gunicorn", "shop.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Copy requirements file and install Python dependencies
+COPY ./requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose port 8000 for Django development server
+EXPOSE 8000
+
+# Copy application code
+COPY . .
+
+# Default command to run Django migrations and start the server
+CMD ["sh", "-c", "python shop/manage.py migrate && python shop/manage.py runserver 0.0.0.0:8000"]
