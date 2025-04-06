@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from shlex import split
+
+from django.conf.global_settings import ALLOWED_HOSTS
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,7 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS=[os.getenv('ALLOWED_HOSTS')]
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(",") if os.getenv('ALLOWED_HOSTS') else []
 
 # Application definition
 
@@ -145,4 +149,5 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Custom user model
-# AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "users.User"
+SITE_ID = 1
