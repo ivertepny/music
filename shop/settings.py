@@ -11,17 +11,18 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import environ, os
+import os
+from dotenv import load_dotenv
 
-env = environ.Env(DEBUG=(bool, False))
-environ.Env.read_env()
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = env("SECRET_KEY")
-DEBUG = env.bool("DEBUG")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG')
+
+ALLOWED_HOSTS=[os.getenv('ALLOWED_HOSTS')]
 
 # Application definition
 
@@ -37,7 +38,7 @@ INSTALLED_APPS = [
 
     'inventory',
     'orders',
-    'purchase',
+    'purchases',
     'suppliers',
     'customers',
     'users',
@@ -77,15 +78,18 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+IN_DOCKER = os.environ.get("IN_DOCKER", "False").lower() == "true"
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DATABASE_NAME"),
-        "USER": env("DATABASE_USER"),
-        "PASSWORD": env("DATABASE_PASSWORD"),
-        "HOST": env("DATABASE_HOST"),
-        "PORT": env("DATABASE_PORT"),
-    }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST') if IN_DOCKER else 'localhost',
+        # Use 'db' in Docker, 'localhost' otherwise
+        'PORT': os.environ.get('POSTGRES_PORT')
+    },
 }
 
 # Password validation
@@ -141,4 +145,4 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Custom user model
-AUTH_USER_MODEL = "users.User"
+# AUTH_USER_MODEL = "users.User"

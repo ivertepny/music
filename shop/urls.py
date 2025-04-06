@@ -14,6 +14,4 @@ urlpatterns = [
     path("api/docs/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 
-    # Example app route placeholder
-    path("api/users/", include("users.urls")),
 ]
